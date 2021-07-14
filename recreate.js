@@ -1,5 +1,6 @@
 const axios = require('axios')
 require('dotenv').config()
+const htmlParser = require('node-html-parser')
 
 function jsonToEFD(json) {
   return Object.keys(json).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(json[key])).join('&');
@@ -63,35 +64,39 @@ async function joinRoom(roomData, userConfig) {
   }
 
   const response = await axios.get(url, { headers: headers })
-  console.log(response.data)
+  const X7910 = response.data.split('X7910')[1].slice(9, -18)
+
+  return X7910;
 }
 
-async function getRoomContents() {
-  const url = "http://us21.chatzy.com/63978621038107"
+async function getRoomContents(roomData) {
+  const url = `http://us${roomData.X9797}.chatzy.com/${roomData.X4016}`
 
   const headers = {
     Cookie: "ChatzyDevice=SGATYRUZ1583897714IeMAqz+DmuKgugl9N33q+w&; ChatzySession=1; ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; ChatzyPrefs2=sock&FFCC60&",
     Referrer: "http://www.chatzy.com"
   }
 
-  let formData = {
+  const body = jsonToEFD({
+    ...roomData,
     X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
     X4812: 1, // constant
-  }
-
-  // Furry Tavern
-  // formData.X7910 = 'hddEyaBi4joGBIT8AlWwoA-14209698811987%2526TheOneFurryTavern%2526%2526X4700%25261626238307%25263%25261%2526GeSr3kAggsf3todP%2526sock%2526FFCC60%2526%2526United%2BStates%2526everestdouglas13%2540gmail.com%2526gehswk0wxtyj%25261%253aeverest13%25261493921799%25261494180999%2526%25261%25262'
-
-  // Grunks Crunky Groove
-  formData.X7910 = 'GLYHVKegTW9wCVC317cUbg-63978621038107&63978621038107&&X4700&1626239562&3&1&pXscMY1NegsjVHRJ&grunk&FF8C00&&United States&everestdouglas13@gmail.com&gehswk0wxtyj&1:everest13&1493921799&1494180999&&1&2'
-
-  // Grunks Crunk Zone
-  // formData.X7910 = 'vcYJwCI2JjrKnFWsDerTZQ-26256256659165%2626256256659165%26%26X3972%261626241131%261%263%26NrGFFeC6tC8Pno61%26grunk%26FF8C00%26password123%26United+States%26everestdouglas13%40gmail.com%26gehswk0wxtyj%261%3aeverest13%261493921799%261494180999%26%261%262'
-
-  const body = jsonToEFD(formData)
+  })
 
   const response = await axios.post(url, body, { headers: headers })
-  console.log(response.data)
+  const htmlRows = htmlParser.parse(response.data).querySelectorAll("#X2803 .a, #X2803 .b")
+  const output = []
+  for (const row of htmlRows) {
+    const type = row.classList.contains('a') ? 'user' : 'system'
+
+    output.push({
+      type: type,
+      username: row.childNodes[0].text,
+      message: row.childNodes[1]._rawText.slice(type == 'system' ? 1 : 2)
+    })
+  }
+
+  return output
 }
 
 (async () => {
@@ -110,6 +115,10 @@ async function getRoomContents() {
     X4016: 63978621038107 // room ID
   }
 
-  await joinRoom(grunksCrunkyGroove, userConfig)
-  // await getRoomContents()
+  const selectedRoom = grunksCrunkyGroove
+
+  const X7910 = await joinRoom(selectedRoom, userConfig)
+  const contents = await getRoomContents({ X7910, ...selectedRoom })
+
+  console.log(contents)
 })()
