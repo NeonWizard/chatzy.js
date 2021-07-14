@@ -1,6 +1,7 @@
 const axios = require('axios')
-require('dotenv').config()
 const htmlParser = require('node-html-parser')
+
+require('dotenv').config()
 
 function jsonToEFD(json) {
   return Object.keys(json).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(json[key])).join('&');
@@ -74,7 +75,7 @@ async function getRoomContents(roomData) {
 
   const headers = {
     Cookie: "ChatzyDevice=SGATYRUZ1583897714IeMAqz+DmuKgugl9N33q+w&; ChatzySession=1; ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; ChatzyPrefs2=sock&FFCC60&",
-    Referrer: "http://www.chatzy.com"
+    Referer: "http://www.chatzy.com"
   }
 
   const body = jsonToEFD({
@@ -99,6 +100,26 @@ async function getRoomContents(roomData) {
   return output
 }
 
+async function sendMessage(roomData, message) {
+  const url = "http://us21.chatzy.com/"
+
+  const headers = {
+    Cookie: "ChatzyDevice=SGATYRUZ1583897714IeMAqz+DmuKgugl9N33q+w&; ChatzySession=1; ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; ChatzyOptions7=0&T&F&F&1&0&0&T&T&T&F&1000&0&0&640&T&0&F&F&0&30&50&F&1&1&F&; ChatzyDaily=1; ChatzyPrefs2=grunk&000000&",
+    Referer: "http://us21.chatzy.com/63978621038107"
+  }
+
+  const body = jsonToEFD({
+    X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
+    X9048: 'X1362', // important
+    X7910: roomData.X7910,
+    X1131: Math.round(Date.now()),
+    X9974: message,
+  })
+
+  const response = await axios.post(url, body, { headers: headers })
+  console.log(response.data)
+}
+
 (async () => {
   // --- Login ---
   // const userCookie = await login();
@@ -120,5 +141,11 @@ async function getRoomContents(roomData) {
   const X7910 = await joinRoom(selectedRoom, userConfig)
   const contents = await getRoomContents({ X7910, ...selectedRoom })
 
-  console.log(contents)
+  for (const row of contents) {
+    console.log(`${row.type.toUpperCase()} ${row.username} - ${row.message}`)
+  }
+
+  // --- Send Message ---
+  await sendMessage({ X7910, ...selectedRoom }, 'hey guys :D')
+  await sendMessage({ X7910, ...selectedRoom }, `the time is currently ${new Date(Date.now()).toLocaleString() }`)
 })()
