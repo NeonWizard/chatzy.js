@@ -1,0 +1,17 @@
+{
+  "name": "chatzy-builder",
+  "version": "1.0.0",
+  "description": "",
+  "main": "recreate.js",
+  "scripts": {
+    "start": "node recreate.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "dotenv": "^10.0.0",
+    "node-fetch": "^2.6.1"
+  },
+  "devDependencies": {},
+  "author": "",
+  "license": "ISC"
+}
