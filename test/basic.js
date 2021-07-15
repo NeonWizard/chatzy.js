@@ -2,7 +2,7 @@ const { Client } = require('../src');
 
 (async () => {
   const client = new Client()
-  await client.login(process.env.EMAIL, process.env.PASSWORD)
+  await client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)
 
   // --- Configs ---
   const userConfig = {

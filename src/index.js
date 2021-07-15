@@ -18,7 +18,7 @@ class Client {
 
   _assertAuthenticated() {
     if (!this.loggedIn) {
-      throw 'User is not logged in.'
+      throw new Error('User is not logged in.')
     }
   }
 
