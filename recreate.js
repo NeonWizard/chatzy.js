@@ -46,17 +46,18 @@ async function login() {
   const chatzyUserCookie = cookies.find(x => x.includes(process.env.EMAIL))
 
   // TODO: fetch X3813
+  return 'xyQQjC8mNAezFR8bl56njA-everestdouglas13@gmail.com&gehswk0wxtyj&1:everest13&1493921799&1494180999&&1&2'
 }
 
-async function joinRoom(roomData, userConfig) {
+async function joinRoom(token, roomData, userConfig) {
   const urlParams = {
     ...roomData,
     ...userConfig,
-    X3813: 'xyQQjC8mNAezFR8bl56njA-everestdouglas13@gmail.com&gehswk0wxtyj&1:everest13&1493921799&1494180999&&1&2',
+    X3813: token,
     X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
     X4812: 1,
     X4778: 'enter',
-    X3446: Math.round(Date.now())
+    X3446: Math.round(Date.now()),
   }
   const queryString = jsonToEFD(urlParams)
   const url = `http://us${roomData.X9797}.chatzy.com/?jsonp:${queryString}`
@@ -71,7 +72,7 @@ async function joinRoom(roomData, userConfig) {
   return X7910;
 }
 
-async function getRoomContents(roomData) {
+async function getRoomContents(token, roomData) {
   const url = `http://us${roomData.X9797}.chatzy.com/${roomData.X4016}`
 
   const headers = {
@@ -82,6 +83,7 @@ async function getRoomContents(roomData) {
     ...roomData,
     X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
     X4812: 1, // constant
+    X7910: token,
   })
 
   const response = await axios.post(url, body, { headers: headers })
@@ -100,7 +102,7 @@ async function getRoomContents(roomData) {
   return output
 }
 
-async function sendMessage(roomData, message) {
+async function sendMessage(token, roomData, message) {
   const url = "http://us21.chatzy.com/"
 
   const headers = {
@@ -110,7 +112,7 @@ async function sendMessage(roomData, message) {
   const body = jsonToEFD({
     X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
     X9048: 'X1362', // important
-    X7910: roomData.X7910,
+    X7910: token,
     X1131: Math.round(Date.now()),
     X9974: message,
   })
@@ -121,9 +123,9 @@ async function sendMessage(roomData, message) {
 
 (async () => {
   // --- Login ---
-  // const userCookie = await login();
+  const roomJoinToken = await login() // X3813
 
-  // --- Join Room ---
+  // --- Configs ---
   const userConfig = {
     X8712: 'grunk', // nickname
     X1711: 'OTC', // use 'OTHER' color
@@ -135,16 +137,17 @@ async function sendMessage(roomData, message) {
     X4016: 63978621038107 // room ID
   }
 
+  // --- Join Room ---
   const selectedRoom = grunksCrunkyGroove
 
-  const X7910 = await joinRoom(selectedRoom, userConfig)
-  const contents = await getRoomContents({ X7910, ...selectedRoom })
+  const roomToken = await joinRoom(roomJoinToken, selectedRoom, userConfig) // X7910
+  const contents = await getRoomContents(roomToken, selectedRoom)
 
   for (const row of contents) {
     console.log(`${row.type.toUpperCase()} ${row.username} - ${row.message}`)
   }
 
   // --- Send Message ---
-  await sendMessage({ X7910, ...selectedRoom }, 'hey guys :D')
-  await sendMessage({ X7910, ...selectedRoom }, `the time is currently ${new Date(Date.now()).toLocaleString() }`)
+  await sendMessage(roomToken, selectedRoom, 'hey guys :D')
+  await sendMessage(roomToken, selectedRoom, `the time is currently ${new Date(Date.now()).toLocaleString() }`)
 })()
