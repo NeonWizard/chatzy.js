@@ -8,15 +8,26 @@ require('dotenv').config()
 
 class Client {
   constructor(options) {
-
+    this._cookie = ''
+    this._token = ''
   }
 
-  async login() {
+  get loggedIn() {
+    return (this._cookie && this._cookie !== '') && (this._token && this._token !== '')
+  }
+
+  _assertAuthenticated() {
+    if (!this.loggedIn) {
+      throw 'User is not logged in.'
+    }
+  }
+
+  async login(email, password) {
     const body = jsonToEFD({
       X2309: '1581170387', // possible epoch time - February 8, 2020. Believed to be time of last update
       X4778: 'sign',
-      X3127: process.env.EMAIL,
-      X8485: process.env.PASSWORD,
+      X3127: email,
+      X8485: password,
 
       // some sort of flag
       X4812: '1',
@@ -43,26 +54,27 @@ class Client {
     }
 
     const cookies = response.headers['set-cookie']
-    const chatzyUserCookie = cookies.find(x => x.includes(process.env.EMAIL))
+    this._cookie = cookies.find(x => x.includes(process.env.EMAIL))
 
     response = await axios.get("http://www.chatzy.com", { headers: {
-      Cookie: chatzyUserCookie
+      Cookie: this._cookie
     }})
 
     const script = htmlParser.parse(response.data).querySelectorAll("script").slice(-1)[0]
     const scriptContent = script.text
     const X3813 = scriptContent.split("X3813=")[1].split(";", 1)[0].slice(1, -1)
-
-    return X3813
+    this._token = X3813
   }
 
   async fetchRooms() {}
 
-  async joinRoom(token, roomData, userConfig) {
+  async joinRoom(roomData, userConfig) {
+    this._assertAuthenticated()
+
     const urlParams = {
       ...roomData,
       ...userConfig,
-      X3813: token,
+      X3813: this._token,
       X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
       X4812: 1,
       X4778: 'enter',
@@ -82,6 +94,8 @@ class Client {
   }
 
   async fetchRoomContents(token, roomData) {
+    this._assertAuthenticated()
+
     const url = `http://us${roomData.X9797}.chatzy.com/${roomData.X4016}`
 
     const headers = {
@@ -112,6 +126,8 @@ class Client {
   }
 
   async sendMessage(token, roomData, message) {
+    this._assertAuthenticated()
+
     const url = "http://us21.chatzy.com/"
 
     const headers = {
@@ -127,7 +143,7 @@ class Client {
     })
 
     const response = await axios.post(url, body, { headers: headers })
-    console.log(response.data)
+    return response.statusText === 'OK'
   }
 }
 
