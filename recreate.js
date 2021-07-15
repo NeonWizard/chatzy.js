@@ -43,7 +43,9 @@ async function login() {
   }
 
   const cookies = response.headers['set-cookie']
-  return cookies.find(x => x.includes(process.env.EMAIL))
+  const chatzyUserCookie = cookies.find(x => x.includes(process.env.EMAIL))
+
+  // TODO: fetch X3813
 }
 
 async function joinRoom(roomData, userConfig) {
@@ -60,7 +62,6 @@ async function joinRoom(roomData, userConfig) {
   const url = `http://us${roomData.X9797}.chatzy.com/?jsonp:${queryString}`
 
   const headers = {
-    Cookie: "ChatzyDevice=SGATYRUZ1583897714IeMAqz+DmuKgugl9N33q+w&; ChatzySession=1; ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; ChatzyPrefs2=sock&FFCC60&",
     Referrer: "http://www.chatzy.com"
   }
 
@@ -74,7 +75,6 @@ async function getRoomContents(roomData) {
   const url = `http://us${roomData.X9797}.chatzy.com/${roomData.X4016}`
 
   const headers = {
-    Cookie: "ChatzyDevice=SGATYRUZ1583897714IeMAqz+DmuKgugl9N33q+w&; ChatzySession=1; ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; ChatzyPrefs2=sock&FFCC60&",
     Referer: "http://www.chatzy.com"
   }
 
@@ -104,8 +104,7 @@ async function sendMessage(roomData, message) {
   const url = "http://us21.chatzy.com/"
 
   const headers = {
-    Cookie: "ChatzyDevice=SGATYRUZ1583897714IeMAqz+DmuKgugl9N33q+w&; ChatzySession=1; ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; ChatzyOptions7=0&T&F&F&1&0&0&T&T&T&F&1000&0&0&640&T&0&F&F&0&30&50&F&1&1&F&; ChatzyDaily=1; ChatzyPrefs2=grunk&000000&",
-    Referer: "http://us21.chatzy.com/63978621038107"
+    Referer: `http://us21.chatzy.com/${roomData.X4016}`
   }
 
   const body = jsonToEFD({
