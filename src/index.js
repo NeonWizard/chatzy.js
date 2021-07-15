@@ -1,13 +1,16 @@
 const axios = require('axios')
 const htmlParser = require('node-html-parser')
+const EventEmitter = require('events')
 
 const { jsonToEFD } = require('./util/index.js')
 
 require('dotenv').config()
 
 
-class Client {
+class Client extends EventEmitter {
   constructor(options) {
+    super()
+
     this._cookie = ''
     this._token = ''
   }
@@ -23,6 +26,8 @@ class Client {
   }
 
   async login(email, password) {
+    this.emit('debug', `Provided email: ${email}`)
+
     const body = jsonToEFD({
       X2309: '1581170387', // possible epoch time - February 8, 2020. Believed to be time of last update
       X4778: 'sign',
@@ -35,6 +40,7 @@ class Client {
       X2459: '1'
     })
 
+    this.emit('debug', 'Posting authentication data...')
     let response = await axios.post("https://www.chatzy.com/", body)
     /* Good response
     * X7708: X9308 ('http://www.chatzy.com/?redirect#ok:entered:Chatzy', true);
@@ -48,14 +54,13 @@ class Client {
     */
 
     if (!response.data.includes("redirect#ok:entered")) {
-      console.warn('Failure logging in.')
-      console.warn(response.data)
-      return
+      throw new Error('Failure logging in.')
     }
 
     const cookies = response.headers['set-cookie']
     this._cookie = cookies.find(x => x.includes(process.env.EMAIL))
 
+    this.emit('debug', 'Retrieving web page and injected authentication token...')
     response = await axios.get("http://www.chatzy.com", { headers: {
       Cookie: this._cookie
     }})
@@ -64,6 +69,8 @@ class Client {
     const scriptContent = script.text
     const X3813 = scriptContent.split("X3813=")[1].split(";", 1)[0].slice(1, -1)
     this._token = X3813
+
+    this.emit('ready')
   }
 
   async fetchRooms() {}

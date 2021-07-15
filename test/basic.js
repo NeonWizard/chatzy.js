@@ -1,9 +1,12 @@
 const { Client } = require('../src');
 
-(async () => {
-  const client = new Client()
-  await client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)
+const log = (...args) => console.log(process.uptime().toFixed(3), ...args)
 
+const client = new Client()
+
+client.on('debug', log)
+
+client.on('ready', async () => {
   // --- Configs ---
   const userConfig = {
     X8712: 'grunk', // nickname
@@ -29,4 +32,6 @@ const { Client } = require('../src');
   // --- Send Message ---
   await client.sendMessage(roomToken, selectedRoom, 'hey guys :D')
   await client.sendMessage(roomToken, selectedRoom, `the time is currently ${new Date(Date.now()).toLocaleString() }`)
-})()
+})
+
+client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)
