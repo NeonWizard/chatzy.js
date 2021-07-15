@@ -8,10 +8,6 @@ function jsonToEFD(json) {
 }
 
 async function login() {
-  const headers = {
-    cookie: process.env.COOKIE,
-  }
-
   const body = jsonToEFD({
     X2309: '1581170387', // possible epoch time - February 8, 2020. Believed to be time of last update
     X4778: 'sign',
@@ -24,7 +20,7 @@ async function login() {
     X2459: '1'
   })
 
-  const response = await axios.post("https://www.chatzy.com/", body, { headers: headers })
+  let response = await axios.post("https://www.chatzy.com/", body)
   /* Good response
   * X7708: X9308 ('http://www.chatzy.com/?redirect#ok:entered:Chatzy', true);
   * X1958
@@ -45,8 +41,18 @@ async function login() {
   const cookies = response.headers['set-cookie']
   const chatzyUserCookie = cookies.find(x => x.includes(process.env.EMAIL))
 
-  // TODO: fetch X3813
-  return 'xyQQjC8mNAezFR8bl56njA-everestdouglas13@gmail.com&gehswk0wxtyj&1:everest13&1493921799&1494180999&&1&2'
+  response = await axios.get("http://www.chatzy.com", { headers: {
+    Cookie: chatzyUserCookie
+  }})
+
+  const script = htmlParser.parse(response.data).querySelectorAll("script").slice(-1)[0]
+  const scriptContent = script.text
+  const X3813 = scriptContent.split("X3813=")[1].split(";", 1)[0].slice(1, -1)
+
+  return X3813
+}
+
+async function getRooms(token) {
 }
 
 async function joinRoom(token, roomData, userConfig) {
