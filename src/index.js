@@ -2,7 +2,8 @@ const axios = require('axios')
 const htmlParser = require('node-html-parser')
 const EventEmitter = require('events')
 
-const { jsonToEFD } = require('./util/index.js')
+const { jsonToEFD } = require('./util')
+const Room = require('./Room.js')
 
 require('dotenv').config()
 
@@ -19,7 +20,7 @@ class Client extends EventEmitter {
     return (this._cookie && this._cookie !== '') && (this._token && this._token !== '')
   }
 
-  _assertAuthenticated() {
+  assertAuthenticated() {
     if (!this.loggedIn) {
       throw new Error('User is not logged in.')
     }
@@ -74,84 +75,6 @@ class Client extends EventEmitter {
   }
 
   async fetchRooms() {}
-
-  async joinRoom(roomData, userConfig) {
-    this._assertAuthenticated()
-
-    const urlParams = {
-      ...roomData,
-      ...userConfig,
-      X3813: this._token,
-      X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
-      X4812: 1,
-      X4778: 'enter',
-      X3446: Math.round(Date.now()),
-    }
-    const queryString = jsonToEFD(urlParams)
-    const url = `http://us${roomData.X9797}.chatzy.com/?jsonp:${queryString}`
-
-    const headers = {
-      Referrer: "http://www.chatzy.com"
-    }
-
-    const response = await axios.get(url, { headers: headers })
-    const X7910 = response.data.split('X7910')[1].slice(9, -18)
-
-    return X7910;
-  }
-
-  async fetchRoomContents(token, roomData) {
-    this._assertAuthenticated()
-
-    const url = `http://us${roomData.X9797}.chatzy.com/${roomData.X4016}`
-
-    const headers = {
-      Referer: "http://www.chatzy.com"
-    }
-
-    const body = jsonToEFD({
-      ...roomData,
-      X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
-      X4812: 1, // constant
-      X7910: token,
-    })
-
-    const response = await axios.post(url, body, { headers: headers })
-    const htmlRows = htmlParser.parse(response.data).querySelectorAll("#X2803 .a, #X2803 .b")
-    const output = []
-    for (const row of htmlRows) {
-      const type = row.classList.contains('a') ? 'user' : 'system'
-
-      output.push({
-        type: type,
-        username: row.childNodes[0].text,
-        message: row.childNodes[1]._rawText.slice(type == 'system' ? 1 : 2)
-      })
-    }
-
-    return output
-  }
-
-  async sendMessage(token, roomData, message) {
-    this._assertAuthenticated()
-
-    const url = "http://us21.chatzy.com/"
-
-    const headers = {
-      Referer: `http://us21.chatzy.com/${roomData.X4016}`
-    }
-
-    const body = jsonToEFD({
-      X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
-      X9048: 'X1362', // important
-      X7910: token,
-      X1131: Math.round(Date.now()),
-      X9974: message,
-    })
-
-    const response = await axios.post(url, body, { headers: headers })
-    return response.statusText === 'OK'
-  }
 }
 
 module.exports = { Client }
