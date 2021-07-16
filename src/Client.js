@@ -28,6 +28,7 @@ class Client extends EventEmitter {
   }
 
   async login(email, password) {
+    this.emit('debug', 'Logging in...')
     this.emit('debug', `Provided email: ${email}`)
 
     const body = jsonToEFD({

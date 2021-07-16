@@ -114,7 +114,7 @@ class Room {
       Referer: "http://www.chatzy.com"
     }
 
-    this.client.emit('debug', 'Joining room...')
+    this.client.emit('debug', `Joining room '${this.name}'...`)
     const response = await axios.get(url, { headers: headers })
     if (response.data.includes('error.png')) throw new Error('Unable to join room.')
     this._token = response.data.split(constants.XRoomToken)[1].slice(9, -18) // X7910
