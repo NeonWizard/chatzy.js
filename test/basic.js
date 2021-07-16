@@ -11,8 +11,6 @@ client.on('ready', async () => {
   await client.fetchRooms()
 
   const grunksCrunkyGroove = new Room(client, {
-    geozone: 'us',
-    geozoneNum: 21,
     roomID: 63978621038107 // room ID
   })
 

@@ -8,10 +8,10 @@ class Room {
     this.client = client
 
     this._token = ''
+    this.geozone = 'us' // apparently always us
+    this.geozoneNum = ''// X9797
     this.ready = false
 
-    this.geozone = data.geozone
-    this.geozoneNum = data.geozoneNum // X9797
     this.roomID = data.roomID // X4016
   }
 
@@ -24,9 +24,26 @@ class Room {
     }
   }
 
+  async _getRoomInfo() {
+    const headers = {
+      Cookie: this.client._cookie
+    }
+
+    const response = await axios.get(`http://chatzy.com/${this.roomID}`, { headers: headers })
+    const html = htmlParser.parse(response.data)
+
+    const geozoneNum = html.querySelector('input#X9797').getAttribute('value')
+
+    return { geozoneNum }
+  }
+
   async join(nickname, color) {
     this.client.assertAuthenticated()
 
+    const roomInfo = await this._getRoomInfo()
+    this.geozoneNum = roomInfo.geozoneNum
+
+    // -- Send join POST
     const urlParams = {
       // -- user config
       X8712: nickname,
@@ -55,6 +72,8 @@ class Room {
     const response = await axios.get(url, { headers: headers })
     if (response.data.includes('error.png')) throw new Error('Unable to join room.')
     this._token = response.data.split('X7910')[1].slice(9, -18) // X7910
+
+    // -- Build websocket
 
     // this.client.emit('debug', 'Building websocket...')
     // this._socket = new WebSocket(`ws://${this.geozonePrefix}.chatzy.com`)
