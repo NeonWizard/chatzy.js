@@ -8,22 +8,22 @@ const client = new Client()
 client.on('debug', log)
 
 client.on('ready', async () => {
+  await client.fetchRooms()
+
   const grunksCrunkyGroove = new Room(client, {
     geozone: 'us',
     geozoneNum: 21,
     roomID: 63978621038107 // room ID
   })
 
-  // --- Join Room ---
   await grunksCrunkyGroove.join('grunk', 'FFCC60')
   const contents = await grunksCrunkyGroove.fetchContents()
 
-  for (const row of contents) {
-    console.log(`[${row.type.toUpperCase()}] ${row.username} - ${row.message}`)
-  }
+  // for (const row of contents) {
+  //   console.log(`[${row.type.toUpperCase()}] ${row.username} - ${row.message}`)
+  // }
 
-  // --- Send Message ---
-  await grunksCrunkyGroove.sendMessage('hey guys :D')
+  await grunksCrunkyGroove.sendMessage('hey grunks')
   await grunksCrunkyGroove.sendMessage(`the time is currently ${new Date(Date.now()).toLocaleString() }`)
 })
 

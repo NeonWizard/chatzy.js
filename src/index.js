@@ -74,7 +74,31 @@ class Client extends EventEmitter {
     this.emit('ready')
   }
 
-  async fetchRooms() {}
+  async fetchRooms() {
+    const url = "http://www.chatzy.com/"
+
+    const headers = {
+      Cookie: this._cookie
+    }
+
+    const response = await axios.get(url, { headers: headers })
+    const html = htmlParser.parse(response.data)
+    const rows = html.querySelectorAll('table#X3506 tr:not(:first-child) td:first-child a')
+
+    const output = []
+    this.emit('debug', 'Rooms:')
+    for (const row of rows) {
+      const data = {
+        name: row.innerText,
+        id: row.outerHTML.split('X4016')[1].split(';')[0].slice(2, -1),
+      }
+      output.push(data)
+
+      this.emit('debug', data)
+    }
+
+    return output
+  }
 }
 
 module.exports = { Client }
