@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "A nodejs module for interfacing with Chatzy.",
   "main": "src/index.js",
+  "engines": {
+    "node": "^15",
+    "npm": "^6"
+  },
   "scripts": {
     "test": "node test/basic.js"
   },
