@@ -8,21 +8,18 @@ const client = new Client()
 client.on('debug', log)
 
 client.on('ready', async () => {
-  await client.fetchRooms()
+  const rooms = await client.fetchRooms()
+  const grunks = rooms.find(x => x.name.includes('crunky groove'))
 
-  const grunksCrunkyGroove = new Room(client, {
-    roomID: 63978621038107 // room ID
-  })
-
-  await grunksCrunkyGroove.join('grunk', 'FFCC60')
-  const contents = await grunksCrunkyGroove.fetchContents()
+  await grunks.join('grunk', 'FFCC60')
+  const contents = await grunks.fetchContents()
 
   // for (const row of contents) {
   //   console.log(`[${row.type.toUpperCase()}] ${row.username} - ${row.message}`)
   // }
 
-  await grunksCrunkyGroove.sendMessage('hey grunks')
-  await grunksCrunkyGroove.sendMessage(`the time is currently ${new Date(Date.now()).toLocaleString() }`)
+  await grunks.sendMessage('hey grunks')
+  await grunks.sendMessage(`the time is currently ${new Date(Date.now()).toLocaleString() }`)
 })
 
 client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)

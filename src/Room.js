@@ -6,13 +6,14 @@ const { jsonToEFD } = require('./util')
 class Room {
   constructor(client, data) {
     this.client = client
+0
+    this.roomID = data.roomID // X4016
+    this.name = data.name
 
     this._token = ''
     this.geozone = 'us' // apparently always us
     this.geozoneNum = ''// X9797
     this.ready = false
-
-    this.roomID = data.roomID // X4016
   }
 
   get authenticated() { return this._token && this._token !== '' }

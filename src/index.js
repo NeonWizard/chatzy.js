@@ -90,11 +90,12 @@ class Client extends EventEmitter {
     for (const row of rows) {
       const data = {
         name: row.innerText,
-        id: row.outerHTML.split('X4016')[1].split(';')[0].slice(2, -1),
+        roomID: row.outerHTML.split('X4016')[1].split(';')[0].slice(2, -1),
       }
-      output.push(data)
-
       this.emit('debug', data)
+
+      const room = new Room(this, data)
+      output.push(room)
     }
 
     return output
