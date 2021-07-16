@@ -116,7 +116,7 @@ class Room {
           obj.content = html.childNodes[0].text
         } else {
           obj.username = html.childNodes[0].text
-          obj.content = html.childNodes[1]._rawText.slice(obj.type == 'system' ? 1 : 2)
+          obj.content = html.childNodes[1].text.slice(obj.type == 'system' ? 1 : 2)
         }
 
         this.client.emit('debug', obj, true)
@@ -184,7 +184,7 @@ class Room {
         obj.message = row.childNodes[0].text
       } else {
         obj.username = row.childNodes[0].text
-        obj.message = row.childNodes[1]._rawText.slice(obj.type == 'system' ? 1 : 2)
+        obj.message = row.childNodes[1].text.slice(obj.type == 'system' ? 1 : 2)
       }
 
       output.push(obj)
