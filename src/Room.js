@@ -1,7 +1,8 @@
 const axios = require('axios')
 const htmlParser = require('node-html-parser')
 
-const { jsonToEFD } = require('./util')
+const { jsonToEFD } = require('./util/util.js')
+const constants = require('./util/constants.js')
 
 class Room {
   constructor(client, data) {
@@ -56,8 +57,8 @@ class Room {
       X4016: this.roomID,
 
       // -- misc
-      X3813: this.client._token,
-      X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
+      [constants.XClientToken]: this.client._token,
+      [constants.XLastUpdate]: constants.lastUpdate,
       X4812: 1,
       X4778: 'enter',
       X3446: Math.round(Date.now()),
@@ -72,7 +73,7 @@ class Room {
     this.client.emit('debug', 'Joining room...')
     const response = await axios.get(url, { headers: headers })
     if (response.data.includes('error.png')) throw new Error('Unable to join room.')
-    this._token = response.data.split('X7910')[1].slice(9, -18) // X7910
+    this._token = response.data.split(constants.XRoomToken)[1].slice(9, -18) // X7910
 
     // -- Build websocket
 
@@ -93,9 +94,9 @@ class Room {
     }
 
     const body = jsonToEFD({
-      X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
+      [constants.XLastUpdate]: constants.lastUpdate,
       X4812: 1, // constant
-      X7910: this._token,
+      [constants.XRoomToken]: this._token,
     })
 
     const response = await axios.post(url, body, { headers: headers })
@@ -125,11 +126,11 @@ class Room {
     }
 
     const body = jsonToEFD({
-      X2309: 1581170387, // possible epoch time - February 8, 2020. Believed to be time of last update
+      [constants.XLastUpdate]: constants.lastUpdate,
       X9048: 'X1362', // important
-      X7910: this._token,
       X1131: Math.round(Date.now()),
       X9974: message,
+      [constants.XRoomToken]: this._token,
     })
 
     const response = await axios.post(url, body, { headers: headers })

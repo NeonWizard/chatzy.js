@@ -2,7 +2,8 @@ const axios = require('axios')
 const htmlParser = require('node-html-parser')
 const EventEmitter = require('events')
 
-const { jsonToEFD } = require('./util')
+const { jsonToEFD } = require('./util/util.js')
+const constants = require('./util/constants.js')
 const Room = require('./Room.js')
 
 require('dotenv').config()
@@ -30,7 +31,7 @@ class Client extends EventEmitter {
     this.emit('debug', `Provided email: ${email}`)
 
     const body = jsonToEFD({
-      X2309: '1581170387', // possible epoch time - February 8, 2020. Believed to be time of last update
+      [constants.XLastUpdate]: constants.lastUpdate,
       X4778: 'sign',
       X3127: email,
       X8485: password,
@@ -43,17 +44,6 @@ class Client extends EventEmitter {
 
     this.emit('debug', 'Posting authentication data...')
     let response = await axios.post("https://www.chatzy.com/", body)
-    /* Good response
-    * X7708: X9308 ('http://www.chatzy.com/?redirect#ok:entered:Chatzy', true);
-    * X1958
-    */
-
-    /* Return value (cookie)
-    * 'ChatzyUser=NoDomainCookie&; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT;',
-    * 'ChatzyUser=everest.douglas13@gmail.com&gehswk0wxtyj&; Domain=.chatzy.com; Path=/;',
-    * 'ChatzySkin=B=0E0638&T=EDDAEA&L=FFFF00&F=Verdana%2c+%27Bitstream+Vera+Sans%27%2c+%27DejaVu+Sans%27%2c+sans-serif&I=%2felements%2fbackgrounds%2fthemes%2fcity.jpg&; Domain=.chatzy.com; Path=/;'
-    */
-
     if (!response.data.includes("redirect#ok:entered")) {
       throw new Error('Failure logging in.')
     }
@@ -68,8 +58,8 @@ class Client extends EventEmitter {
 
     const script = htmlParser.parse(response.data).querySelectorAll("script").slice(-1)[0]
     const scriptContent = script.text
-    const X3813 = scriptContent.split("X3813=")[1].split(";", 1)[0].slice(1, -1)
-    this._token = X3813
+    const clientToken = scriptContent.split(constants.XClientToken + "=")[1].split(";", 1)[0].slice(1, -1)
+    this._token = clientToken
 
     this.emit('ready')
   }
