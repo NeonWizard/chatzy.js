@@ -1,4 +1,4 @@
-# chatzy.py
+# chatzy.js
 chatzy.js is a NodeJS package for interfacing with the Chatzy API, alongside some extra functionality.
 
 This library aims to objectify Chatzy features in a way idiomatic to NodeJS. This includes interfacing with the regular Chatzy client, as well as interfacing with Chatzy's chat with event emission and listeners inspired by the design of [discord.js](https://github.com/discordjs/discord.js).
