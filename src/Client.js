@@ -13,6 +13,11 @@ class Client extends EventEmitter {
   constructor(options) {
     super()
 
+    this.user = {
+      email: null,
+      tag: null
+    }
+
     this._cookie = ''
     this._token = ''
   }
@@ -30,6 +35,7 @@ class Client extends EventEmitter {
   async login(email, password) {
     this.emit('debug', 'Logging in...')
     this.emit('debug', `Provided email: ${email}`)
+    this.user.email = email
 
     const body = jsonToEFD({
       [constants.XLastUpdate]: constants.lastUpdate,
@@ -57,10 +63,17 @@ class Client extends EventEmitter {
       Cookie: this._cookie
     }})
 
-    const script = htmlParser.parse(response.data).querySelectorAll("script").slice(-1)[0]
+    const html = htmlParser.parse(response.data)
+    const script = html.querySelectorAll("script").slice(-1)[0]
     const scriptContent = script.text
-    const clientToken = scriptContent.split(constants.XClientToken + "=")[1].split(";", 1)[0].slice(1, -1)
-    this._token = clientToken
+
+    this._token = scriptContent
+      .split(constants.XClientToken + "=")[1]
+      .split(";", 1)[0]
+      .slice(1, -1)
+
+    const tag = html.querySelector('#X6595 .X7768').text
+    if (tag !== this.email) this.user.tag = tag
 
     this.emit('ready')
   }
