@@ -1,4 +1,4 @@
-const Client = require('../src/Client.js');
+const { Client } = require('../src')
 
 const log = (...args) => console.log(process.uptime().toFixed(3), ...args)
 
@@ -6,6 +6,9 @@ const client = new Client()
 
 client.on('debug', (message, verbose) => {
   if (process.env.LOG_VERBOSE === 'true' || !verbose) log(message)
+})
+client.on('error', message => {
+  console.error(message)
 })
 
 client.on('ready', async () => {
