@@ -8,12 +8,6 @@ This library aims to objectify Chatzy features in a way idiomatic to NodeJS. Thi
 npm install chatzy.js
 ```
 
-## Who did this 😂 🔥 😳
-This project has been solo so far, though pull requests are appreciated! Documentation is slowly in progress. If you have any questions or suggestions, you can find me on discord at Spooky#1010
-
-## Documentation
-Read the [docs](docs/analysis.md) for installation and usage information.
-
 ## Example usage
 ```js
 const { Client, Room } = require('../src')
@@ -30,6 +24,13 @@ client.on('message', async message => {
 
 client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)
 ```
+
+## Who did this 😂 🔥 😳
+This project has been solo so far, though pull requests are appreciated! Documentation is slowly in progress. If you have any questions or suggestions, you can find me on discord at Spooky#1010
+
+## Documentation
+Read the [docs](docs/analysis.md) for installation and usage information.
+
 
 ## Contributing
 In lieu of a formal style guide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code.
