@@ -10,7 +10,7 @@ class Room {
     this.client = client
 0
     this.roomID = data.roomID // X4016
-    this.name = data.name
+    this.name = data.name // TODO: if null fetch when joining
 
     this._token = '' // X7910
     this.geozone = 'us' // apparently always us
@@ -201,7 +201,7 @@ class Room {
     return output
   }
 
-  async sendMessage(message) {
+  async send(message) {
     this.assertAuthenticated()
 
     const url = `http://${this.geozonePrefix}.chatzy.com/`

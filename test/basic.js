@@ -22,13 +22,13 @@ client.on('ready', async () => {
     console.log(`[${row.type.toUpperCase()}] ${row.username} - ${row.message}`)
   }
 
-  await grunks.sendMessage('hey grunks')
-  await grunks.sendMessage(`the time is currently ${new Date(Date.now()).toLocaleString() }`)
+  await grunks.send('hey grunks')
+  await grunks.send(`the time is currently ${new Date(Date.now()).toLocaleString() }`)
 })
 
 
 const commands = {
-  ping: message => message.room.sendMessage('pong!')
+  ping: message => message.room.send('pong!')
 }
 
 client.on('message', async message => {
