@@ -1,5 +1,6 @@
 const axios = require('axios')
 const htmlParser = require('node-html-parser')
+const WebSocket = require('ws')
 
 const { jsonToEFD } = require('./util/util.js')
 const constants = require('./util/constants.js')
@@ -11,9 +12,10 @@ class Room {
     this.roomID = data.roomID // X4016
     this.name = data.name
 
-    this._token = ''
+    this._token = '' // X7910
     this.geozone = 'us' // apparently always us
-    this.geozoneNum = ''// X9797
+    this.geozoneNum = null // X9797
+    this.sockInfo = []
     this.ready = false
   }
 
@@ -26,6 +28,13 @@ class Room {
     }
   }
 
+  assertAuthenticated() {
+    this.client.assertAuthenticated()
+    if (!this.authenticated) {
+      throw new Error('Must be authenticated in this room to perform this operation.')
+    }
+  }
+
   async _getRoomInfo() {
     const headers = {
       Cookie: this.client._cookie
@@ -34,16 +43,51 @@ class Room {
     const response = await axios.get(`http://chatzy.com/${this.roomID}`, { headers: headers })
     const html = htmlParser.parse(response.data)
 
-    const geozoneNum = html.querySelector('input#X9797').getAttribute('value')
+    this.geozoneNum = html.querySelector('input#X9797').getAttribute('value')
 
-    return { geozoneNum }
+    return {
+      geozoneNum: this.geozoneNum,
+    }
+  }
+
+  async _getPostPage() {
+    this.assertAuthenticated()
+
+    const url = `http://${this.geozonePrefix}.chatzy.com/${this.roomID}`
+
+    const headers = {
+      Referer: "http://www.chatzy.com"
+    }
+
+    const body = jsonToEFD({
+      [constants.XLastUpdate]: constants.lastUpdate,
+      X4812: 1, // constant
+      [constants.XRoomToken]: this._token,
+    })
+
+    const response = await axios.post(url, body, { headers: headers })
+    return response.data
+  }
+
+  async _getSockInfo() {
+    const data = await this._getPostPage()
+    const html = htmlParser.parse(data)
+
+    const script = html.querySelectorAll("script").slice(-1)[0]
+    const scriptContent = script.text
+    this.sockInfo = scriptContent
+      .split('7084')[1]
+      .split(';')[0]
+      .slice(3, -2)
+      .split(',')
+      .map(x => parseInt(x))
+
+    return this.sockInfo
   }
 
   async join(nickname, color) {
     this.client.assertAuthenticated()
-
-    const roomInfo = await this._getRoomInfo()
-    this.geozoneNum = roomInfo.geozoneNum
+    await this._getRoomInfo()
 
     // -- Send join POST
     const urlParams = {
@@ -76,31 +120,22 @@ class Room {
     this._token = response.data.split(constants.XRoomToken)[1].slice(9, -18) // X7910
 
     // -- Build websocket
-
-    // this.client.emit('debug', 'Building websocket...')
-    // this._socket = new WebSocket(`ws://${this.geozonePrefix}.chatzy.com`)
+    this.client.emit('debug', 'Building websocket...')
+    await this._getSockInfo()
+    const sockNum = this.sockInfo[0] + (this.roomID % this.sockInfo[1]) // magic
+    const sockUrl = `ws://${this.geozonePrefix}.chatzy.com/wss/${sockNum}?${this._token}`
+    this._socket = new WebSocket(sockUrl)
+    this._socket.on('open', () => this.client.emit('debug', 'Socket is open!'))
 
     this.ready = true
   }
 
   async fetchContents() {
-    this.client.assertAuthenticated()
-    this.assertJoined()
+    this.assertAuthenticated()
 
-    const url = `http://${this.geozonePrefix}.chatzy.com/${this.roomID}`
+    const data = await this._getPostPage()
 
-    const headers = {
-      Referer: "http://www.chatzy.com"
-    }
-
-    const body = jsonToEFD({
-      [constants.XLastUpdate]: constants.lastUpdate,
-      X4812: 1, // constant
-      [constants.XRoomToken]: this._token,
-    })
-
-    const response = await axios.post(url, body, { headers: headers })
-    const htmlRows = htmlParser.parse(response.data).querySelectorAll("#X2803 .a, #X2803 .b")
+    const htmlRows = htmlParser.parse(data).querySelectorAll("#X2803 .a, #X2803 .b")
     const output = []
     for (const row of htmlRows) {
       let obj = {}
@@ -120,8 +155,7 @@ class Room {
   }
 
   async sendMessage(message) {
-    this.client.assertAuthenticated()
-    this.assertJoined()
+    this.assertAuthenticated()
 
     const url = `http://${this.geozonePrefix}.chatzy.com/`
 

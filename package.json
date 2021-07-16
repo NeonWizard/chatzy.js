@@ -11,7 +11,8 @@
     "axios": "^0.21.1",
     "dotenv": "^10.0.0",
     "node-fetch": "^2.6.1",
-    "node-html-parser": "^4.1.0"
+    "node-html-parser": "^4.1.0",
+    "ws": "^7.5.3"
   },
   "devDependencies": {},
   "author": "",
