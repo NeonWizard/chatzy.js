@@ -1,7 +1,6 @@
 {
-  "name": "chatzy.js",
+  "name": "quinton-isodose-sudiform",
   "version": "1.0.0",
-  "description": "A nodejs module for interfacing with Chatzy.",
   "main": "src/index.js",
   "engines": {
     "node": "^15",
