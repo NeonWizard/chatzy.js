@@ -24,16 +24,16 @@ Messages and data are still sent with POST requests.
 
 ## Flow
 Login
-<- username, password
--> ChatzyUser cookie
+* <- username, password
+* -> ChatzyUser cookie
 
 Homepage Fetch
-<- ChatzyUser cookie
--> X3813 variable in injected script tag
+* <- ChatzyUser cookie
+* -> X3813 variable in injected script tag
 
 Join Room
-<- X3813 script variable
--> X7910 room access token
+* <- X3813 script variable
+* -> X7910 room access token
 
 Send Message
-<- X7910 room access token
+* <- X7910 room access token

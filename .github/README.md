@@ -29,7 +29,7 @@ client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)
 This project has been solo so far, though pull requests are appreciated! Documentation is slowly in progress. If you have any questions or suggestions, you can find me on discord at Spooky#1010
 
 ## Documentation
-Read the [docs](docs/analysis.md) for installation and usage information.
+Read the [docs](../docs/analysis.md) for installation and usage information.
 
 
 ## Contributing
