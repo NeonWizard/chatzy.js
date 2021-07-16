@@ -77,13 +77,13 @@ class Client extends EventEmitter {
     const rows = html.querySelectorAll('table#X3506 tr:not(:first-child) td:first-child a')
 
     const output = []
-    this.emit('debug', 'Rooms:')
+    this.emit('debug', 'Rooms:', true)
     for (const row of rows) {
       const data = {
         name: row.innerText,
         roomID: row.outerHTML.split('X4016')[1].split(';')[0].slice(2, -1),
       }
-      this.emit('debug', data)
+      this.emit('debug', data, true)
 
       const room = new Room(this, data)
       output.push(room)

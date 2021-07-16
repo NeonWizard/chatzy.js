@@ -85,6 +85,51 @@ class Room {
     return this.sockInfo
   }
 
+  async _buildSocket() {
+    this.client.emit('debug', 'Building websocket...')
+    await this._getSockInfo()
+    const sockNum = this.sockInfo[0] + (this.roomID % this.sockInfo[1]) // magic
+    const sockUrl = `ws://${this.geozonePrefix}.chatzy.com/wss/${sockNum}?${this._token}`
+    this._socket = new WebSocket(sockUrl)
+    this._setupSockHandlers()
+  }
+
+  _setupSockHandlers() {
+    this._socket.on('open', () => this.client.emit('debug', 'Socket is open!'))
+
+    this._socket.on('ping', () => {
+      this.client.emit('debug', 'Socket ping event.')
+    })
+
+    this._socket.on('message', message => {
+      this.client.emit('debug', message, true)
+      if (message.includes('style=')) {
+        const raw = message.split('<>')[3]
+        const html = htmlParser.parse(raw).childNodes[0]
+
+        let obj = {
+          type: html.classList.contains('a') ? 'user' : 'system',
+          room: this
+        }
+
+        if (html.childNodes.length == 1) {
+          obj.content = html.childNodes[0].text
+        } else {
+          obj.username = html.childNodes[0].text
+          obj.content = html.childNodes[1]._rawText.slice(obj.type == 'system' ? 1 : 2)
+        }
+
+        this.client.emit('debug', obj, true)
+        this.client.emit('message', obj)
+      }
+    })
+
+    this._socket.on('close', () => {
+      this.client.emit('debug', 'Socket was closed.')
+      this._buildSocket()
+    })
+  }
+
   async join(nickname, color) {
     this.client.assertAuthenticated()
     await this._getRoomInfo()
@@ -119,13 +164,7 @@ class Room {
     if (response.data.includes('error.png')) throw new Error('Unable to join room.')
     this._token = response.data.split(constants.XRoomToken)[1].slice(9, -18) // X7910
 
-    // -- Build websocket
-    this.client.emit('debug', 'Building websocket...')
-    await this._getSockInfo()
-    const sockNum = this.sockInfo[0] + (this.roomID % this.sockInfo[1]) // magic
-    const sockUrl = `ws://${this.geozonePrefix}.chatzy.com/wss/${sockNum}?${this._token}`
-    this._socket = new WebSocket(sockUrl)
-    this._socket.on('open', () => this.client.emit('debug', 'Socket is open!'))
+    await this._buildSocket()
 
     this.ready = true
   }
