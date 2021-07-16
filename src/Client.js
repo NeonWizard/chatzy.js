@@ -91,6 +91,15 @@ class Client extends EventEmitter {
 
     return output
   }
+
+  async joinRoom(id, userInfo) {
+    const room = new Room(this, { roomID: id })
+    await room.join(
+      userInfo?.nickname ?? this.tag,
+      userInfo?.color ?? 'FFCC60'
+    )
+    return room
+  }
 }
 
 module.exports = Client
