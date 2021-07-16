@@ -1,5 +1,4 @@
-const { Client } = require('../src');
-const Room = require('../src/Room.js')
+const Client = require('../src/Client.js');
 
 const log = (...args) => console.log(process.uptime().toFixed(3), ...args)
 
