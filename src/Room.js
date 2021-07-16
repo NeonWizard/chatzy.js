@@ -103,13 +103,17 @@ class Room {
     const htmlRows = htmlParser.parse(response.data).querySelectorAll("#X2803 .a, #X2803 .b")
     const output = []
     for (const row of htmlRows) {
-      const type = row.classList.contains('a') ? 'user' : 'system'
+      let obj = {}
+      obj.type = row.classList.contains('a') ? 'user' : 'system'
 
-      output.push({
-        type: type,
-        username: row.childNodes[0].text,
-        message: row.childNodes[1]._rawText.slice(type == 'system' ? 1 : 2)
-      })
+      if (row.childNodes.length == 1) {
+        obj.message = row.childNodes[0].text
+      } else {
+        obj.username = row.childNodes[0].text
+        obj.message = row.childNodes[1]._rawText.slice(obj.type == 'system' ? 1 : 2)
+      }
+
+      output.push(obj)
     }
 
     return output
