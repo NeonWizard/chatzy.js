@@ -104,7 +104,7 @@ class Room {
     this._socket.on('message', raw => {
       this.client.emit('debug', raw, true)
       if (raw.includes('style=')) {
-        const message = parseMessage(raw)
+        const message = parseMessage(raw.split('<>')[3])
         message.room = this
 
         this.client.emit('debug', message, true)
@@ -174,18 +174,10 @@ class Room {
 
     const data = await this._getPostPage()
 
-    const htmlRows = htmlParser.parse(data).querySelectorAll("#X2803 .a, #X2803 .b")
+    const htmlRows = htmlParser.parse(data).querySelectorAll(`#${constants.XChatBox} p`)
     const output = []
     for (const row of htmlRows) {
-      let obj = {}
-      obj.type = row.classList.contains('a') ? 'user' : 'system'
-
-      if (row.childNodes.length == 1) {
-        obj.message = row.childNodes[0].text
-      } else {
-        obj.username = row.childNodes[0].text
-        obj.message = row.childNodes[1].text.slice(obj.type == 'system' ? 1 : 2)
-      }
+      const obj = parseMessage(row.outerHTML)
 
       output.push(obj)
     }

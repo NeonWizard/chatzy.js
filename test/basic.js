@@ -18,8 +18,12 @@ client.on('ready', async () => {
   await grunks.join('grunk', 'FFCC60')
   const contents = await grunks.fetchContents()
 
-  for (const row of contents) {
-    console.log(`[${row.type.toUpperCase()}] ${row.username} - ${row.message}`)
+  for (const message of contents) {
+    if (message.type == 'user') {
+      log(`[${message.username}] ${message.content}`)
+    } else {
+      log(`[SYSTEM] ${message.username ?? ''} ${message.content}`)
+    }
   }
 
   await grunks.send('hey grunks')
@@ -46,7 +50,7 @@ client.on('message', async message => {
 client.on('system_message', async message => {
   log(`[SYSTEM] ${message.username ?? ''} ${message.content}`)
 
-  message.room.send(`[b][SYSTEM][/b] ${message.username ?? ''} ${message.content}`)
+  message.room.send(`[SYSTEM] ${message.username ?? ''} ${message.content}`)
 })
 
 client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)

@@ -4,8 +4,7 @@ function jsonToEFD(json) {
   return Object.keys(json).map(key => encodeURIComponent(key) + '=' + encodeURIComponent(json[key])).join('&');
 }
 
-function parseMessage(message) {
-  const raw = message.split('<>')[3]
+function parseMessage(raw) {
   const html = htmlParser.parse(raw).childNodes[0]
 
   let obj = {
