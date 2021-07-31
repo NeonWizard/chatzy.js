@@ -32,7 +32,7 @@ const commands = {
 }
 
 client.on('message', async message => {
-  log(`[USER] ${message.username} - ${message.content}`)
+  log(`[${message.username}] ${message.content}`)
 
   if (message.content.startsWith('!')) {
     message.content = message.content.slice(1).split(' ')
