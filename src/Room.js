@@ -16,6 +16,7 @@ class Room {
     this.geozone = 'us' // apparently always us
     this.geozoneNum = null // X9797
     this.sockInfo = []
+    this.nickname = null
     this.ready = false
   }
 
@@ -111,6 +112,7 @@ class Room {
         if (message.type == 'system') {
           this.client.emit('system_message', message)
         } else {
+          if (message.username === this.nickname) return
           this.client.emit('message', message)
         }
       }
@@ -166,6 +168,7 @@ class Room {
 
     await this._buildSocket()
 
+    this.nickname = nickname
     this.ready = true
   }
 
