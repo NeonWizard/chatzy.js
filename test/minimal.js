@@ -3,7 +3,7 @@ const client = new Client()
 
 client.on('ready', async () => {
   console.log(`Logged in as ${client.user.email}!`)
-  await client.joinRoom(63978621038107, { nickname: 'Deiga', color: 'FF3333' })
+  await client.joinRoom(63978621038107, { nickname: 'grunk', color: 'FF3333' })
 })
 
 client.on('message', async message => {

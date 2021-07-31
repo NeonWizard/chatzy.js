@@ -8,7 +8,6 @@ const Room = require('./Room.js')
 
 require('dotenv').config()
 
-
 class Client extends EventEmitter {
   constructor(options) {
     super()

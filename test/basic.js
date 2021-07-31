@@ -32,15 +32,21 @@ const commands = {
 }
 
 client.on('message', async message => {
-  log(`[${message.type}] ${message.username} - ${message.content}`)
+  log(`[USER] ${message.username} - ${message.content}`)
 
-  if (message.type == 'user' && message.content.startsWith('!')) {
+  if (message.content.startsWith('!')) {
     message.content = message.content.slice(1).split(' ')
     const command = message.content.shift()
     message.content = message.content.join(' ')
 
     if (command in commands) commands[command](message)
   }
+})
+
+client.on('system_message', async message => {
+  log(`[SYSTEM] ${message.username ?? ''} ${message.content}`)
+
+  message.room.send(`[b][SYSTEM][/b] ${message.username ?? ''} ${message.content}`)
 })
 
 client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)

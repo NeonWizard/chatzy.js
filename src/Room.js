@@ -107,20 +107,42 @@ class Room {
         const raw = message.split('<>')[3]
         const html = htmlParser.parse(raw).childNodes[0]
 
-        let obj = {
-          type: html.classList.contains('a') ? 'user' : 'system',
-          room: this
-        }
+        if (html.classList.contains('a')) {
+          // user message
+          const obj = {
+            username: html.childNodes[0].text,
+            content: html
+              .childNodes
+              .slice(1)
+              .reduce((acc, cur) => acc + cur.text, '')
+              .slice(2),
+            room: this
+          }
 
-        if (html.childNodes.length == 1) {
-          obj.content = html.childNodes[0].text
+          this.client.emit('message', obj)
+          this.client.emit('debug', obj, true)
         } else {
-          obj.username = html.childNodes[0].text
-          obj.content = html.childNodes[1].text.slice(obj.type == 'system' ? 1 : 2)
-        }
+          // system message
+          let obj = {
+            username: null,
+            content: '',
+            room: this
+          }
 
-        this.client.emit('debug', obj, true)
-        this.client.emit('message', obj)
+          if (html.childNodes.length == 1) {
+            obj.content = html.childNodes[0].text
+          } else {
+            obj.username = html.childNodes[0].text
+            obj.content = html
+              .childNodes
+              .slice(1)
+              .reduce((acc, cur) => acc + cur.text, '')
+              .slice(1)
+          }
+
+          this.client.emit('system_message', obj)
+          this.client.emit('debug', obj, true)
+        }
       }
     })
 
