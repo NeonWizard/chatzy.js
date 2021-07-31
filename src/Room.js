@@ -2,7 +2,7 @@ const axios = require('axios')
 const htmlParser = require('node-html-parser')
 const WebSocket = require('ws')
 
-const { jsonToEFD } = require('./util/util.js')
+const { jsonToEFD, parseMessage } = require('./util/util.js')
 const constants = require('./util/constants.js')
 
 class Room {
@@ -101,47 +101,17 @@ class Room {
       this.client.emit('debug', 'Socket ping event.')
     })
 
-    this._socket.on('message', message => {
-      this.client.emit('debug', message, true)
-      if (message.includes('style=')) {
-        const raw = message.split('<>')[3]
-        const html = htmlParser.parse(raw).childNodes[0]
+    this._socket.on('message', raw => {
+      this.client.emit('debug', raw, true)
+      if (raw.includes('style=')) {
+        const message = parseMessage(raw)
+        message.room = this
 
-        if (html.classList.contains('a')) {
-          // user message
-          const obj = {
-            username: html.childNodes[0].text,
-            content: html
-              .childNodes
-              .slice(1)
-              .reduce((acc, cur) => acc + cur.text, '')
-              .slice(2),
-            room: this
-          }
-
-          this.client.emit('message', obj)
-          this.client.emit('debug', obj, true)
+        this.client.emit('debug', message, true)
+        if (message.type == 'system') {
+          this.client.emit('system_message', message)
         } else {
-          // system message
-          let obj = {
-            username: null,
-            content: '',
-            room: this
-          }
-
-          if (html.childNodes.length == 1) {
-            obj.content = html.childNodes[0].text
-          } else {
-            obj.username = html.childNodes[0].text
-            obj.content = html
-              .childNodes
-              .slice(1)
-              .reduce((acc, cur) => acc + cur.text, '')
-              .slice(1)
-          }
-
-          this.client.emit('system_message', obj)
-          this.client.emit('debug', obj, true)
+          this.client.emit('message', message)
         }
       }
     })
