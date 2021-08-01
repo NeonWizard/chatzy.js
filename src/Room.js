@@ -109,10 +109,11 @@ class Room {
         message.room = this
 
         this.client.emit('debug', message, true)
+        if (message.username === this.nickname) return
+
         if (message.type == 'system') {
           this.client.emit('system_message', message)
         } else {
-          if (message.username === this.nickname) return
           this.client.emit('message', message)
         }
       }
