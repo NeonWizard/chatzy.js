@@ -45,6 +45,9 @@ class Room {
     const html = htmlParser.parse(response.data)
 
     this.geozoneNum = html.querySelector('input#X9797').getAttribute('value')
+    if (!this.name) {
+      this.name = html.querySelector('#X9303 > div > h1').text
+    }
 
     return {
       geozoneNum: this.geozoneNum,
