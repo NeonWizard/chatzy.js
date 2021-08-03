@@ -115,7 +115,19 @@ class Room {
         if (message.username === this.nickname) return
 
         if (message.type == 'system') {
-          this.client.emit('system_message', message)
+          if (message.event == 'join') {
+            this.client.emit('userJoined', {
+              username: message.username,
+              room: this
+            })
+          } else if (message.event == 'leave') {
+            this.client.emit('userLeft', {
+              username: message.username,
+              room: this
+            })
+          } else {
+            this.client.emit('systemMessage', message)
+          }
         } else {
           this.client.emit('message', message)
         }

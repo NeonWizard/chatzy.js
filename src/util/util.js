@@ -20,26 +20,50 @@ function parseMessage(raw) {
   }
 
   if (obj.type == 'user') {
+    // -- Basic user message --
     obj.username = html.childNodes[0].text
     obj.content = html
         .childNodes
         .slice(1)
         .reduce((acc, cur) => acc + cur.text, '')
         .slice(2)
+
   } else if (obj.type == 'system') {
-    if (html.childNodes.length == 1) {
-      obj.content = html.childNodes[0].text
+    // -- System message --
+    let elem, content
+    if (span = html.querySelector('span.h')) {
+      content = span.getAttribute('title')
+      elem = span
     } else {
-      obj.username = html.childNodes[0].text
-      obj.content = html
+      content = html.text
+      elem = html
+    }
+
+    if (elem.childNodes.length == 1) {
+      // non-user
+      obj.content = elem.childNodes[0].text
+    } else {
+      // user
+      obj.username = elem.childNodes[0].text
+      obj.content = elem
         .childNodes
         .slice(1)
         .reduce((acc, cur) => acc + cur.text, '')
         .slice(1)
+
+      if (content.includes('joined the chat')) {
+        obj.event = 'join'
+      } else if (content.includes('left the chat')) {
+        obj.event = 'leave'
+      }
     }
+
   } else if (obj.type == 'embed') {
+    // -- Embed --
+
     // Embed is made of two parts - p for username and div for contents (with multiple p tags), each with class 'c'
     console.warn('WARNING: Embeds not currently supported.')
+
   } else {
     console.error(`ERROR: Unknown message type: ${html.classList.values()}`)
   }
