@@ -178,10 +178,8 @@ class Room {
     const response = await axios.get(url, { headers: headers })
     if (response.data.includes('error.png')) {
       if (response.data.includes('alias is being used')) {
-        this.client.emit('error', response.data)
         throw new Error('This name/alias is being used by another registered Chatzy user in this room.')
       } else {
-        this.client.emit('error', response.data)
         throw new Error('Unable to join room.')
       }
     }

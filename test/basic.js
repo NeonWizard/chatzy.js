@@ -7,9 +7,6 @@ const client = new Client()
 client.on('debug', (message, verbose) => {
   if (process.env.LOG_VERBOSE === 'true' || !verbose) log(message)
 })
-client.on('error', message => {
-  console.error(message)
-})
 
 client.on('ready', async () => {
   const rooms = await client.fetchRooms()
