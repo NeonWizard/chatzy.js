@@ -13,7 +13,7 @@ client.on('error', message => {
 
 client.on('ready', async () => {
   const rooms = await client.fetchRooms()
-  const grunks = rooms.find(x => x.name.toLowerCase().includes('crunky groove'))
+  const grunks = rooms.find(x => x.name.toLowerCase().includes('crunk zone'))
 
   await grunks.join('grunk', 'FFCC60')
   const contents = await grunks.fetchContents()
@@ -38,7 +38,7 @@ const commands = {
 client.on('message', async message => {
   log(`[${message.username}] ${message.content}`)
 
-  if (message.content.startsWith('!')) {
+  if (message.type == 'message' && message.content.startsWith('!')) {
     message.content = message.content.slice(1).split(' ')
     const command = message.content.shift()
     message.content = message.content.join(' ')
@@ -47,10 +47,22 @@ client.on('message', async message => {
   }
 })
 
-client.on('system_message', async message => {
+client.on('systemMessage', async message => {
   log(`[SYSTEM] ${message.username ?? ''} ${message.content}`)
 
   message.room.send(`[SYSTEM] ${message.username ?? ''} ${message.content}`)
+})
+
+client.on('userJoined', async message => {
+  log(`${message.username} joined the chat.`)
+
+  message.room.send(`${message.username} joined the chat.`)
+})
+
+client.on('userLeft', async message => {
+  log(`${message.username} left the chat.`)
+
+  message.room.send(`${message.username} left the chat.`)
 })
 
 client.login(process.env.EMAIL, process.env.PASSWORD).catch(console.error)
