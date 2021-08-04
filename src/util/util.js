@@ -21,13 +21,19 @@ function parseMessage(raw) {
 
   if (obj.type == 'user') {
     // -- Basic user message --
-    obj.username = html.childNodes[0].text
-    obj.content = html
-        .childNodes
-        .slice(1)
-        .reduce((acc, cur) => acc + cur.text, '')
-        .slice(2)
-
+    if (span = html.querySelector('span')) {
+      obj.event = 'action'
+      obj.username = html.childNodes[0].text
+      obj.content = span.text.slice(1)
+    } else {
+      obj.event = 'message'
+      obj.username = html.childNodes[0].text
+      obj.content = html
+          .childNodes
+          .slice(1)
+          .reduce((acc, cur) => acc + cur.text, '')
+          .slice(2)
+    }
   } else if (obj.type == 'system') {
     // -- System message --
     let elem, content
@@ -57,7 +63,6 @@ function parseMessage(raw) {
         obj.event = 'leave'
       }
     }
-
   } else if (obj.type == 'embed') {
     // -- Embed --
 

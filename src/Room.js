@@ -129,7 +129,12 @@ class Room {
             this.client.emit('systemMessage', message)
           }
         } else {
-          this.client.emit('message', message)
+          this.client.emit('message', {
+            username: message.username,
+            content: message.content,
+            type: message.event,
+            room: this,
+          })
         }
       }
     })
