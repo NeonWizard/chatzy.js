@@ -8,7 +8,7 @@ const constants = require('./util/constants.js')
 class Room {
   constructor(client, data) {
     this.client = client
-0
+
     this.roomID = data.roomID // X4016
     this.name = data.name // TODO: if null fetch when joining
 
