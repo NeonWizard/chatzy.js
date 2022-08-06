@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Reverse Engineering Chatzy","permalink":"/chatzy.js/blog/reverse-engineering-chatzy"}]}')}}]);
