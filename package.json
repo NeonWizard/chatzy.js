@@ -7,7 +7,11 @@
     "npm": "^6"
   },
   "scripts": {
-    "test": "node test/basic.js"
+    "test": "node test/basic.js",
+    "fmt": "prettier --write '**/*.{md,css,js,json}'",
+    "fmt:check": "prettier --check '**/*.{md,css,js,json}'",
+    "lint": "eslint src/",
+    "lint:fix": "eslint src/ --fix"
   },
   "dependencies": {
     "axios": "^0.21.1",
@@ -15,7 +19,10 @@
     "node-html-parser": "^4.1.0",
     "ws": "^7.5.3"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "eslint": "^8.21.0",
+    "prettier": "2.7.1"
+  },
   "author": "",
   "license": "ISC"
 }
