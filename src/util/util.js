@@ -23,7 +23,8 @@ function parseMessage(raw) {
 
   if (obj.type == "user") {
     // -- Basic user message --
-    if ((span = html.querySelector("span"))) {
+    let span = html.querySelector("span");
+    if (span) {
       obj.event = "action";
       obj.username = html.childNodes[0].text;
       obj.content = span.text.slice(1);
@@ -38,7 +39,8 @@ function parseMessage(raw) {
   } else if (obj.type == "system") {
     // -- System message --
     let elem, content;
-    if ((span = html.querySelector("span.h"))) {
+    let span = html.querySelector("span.h");
+    if (span) {
       content = span.getAttribute("title");
       elem = span;
     } else {
