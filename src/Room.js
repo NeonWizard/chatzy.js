@@ -1,4 +1,4 @@
-const axios = require("axios");
+const fetch = require("node-fetch");
 const htmlParser = require("node-html-parser");
 const WebSocket = require("ws");
 
@@ -47,10 +47,12 @@ class Room {
       Cookie: this.client._cookie,
     };
 
-    const response = await axios.get(`http://chatzy.com/${this.roomID}`, {
+    const response = await fetch(`http://chatzy.com/${this.roomID}`, {
+      method: "get",
       headers: headers,
     });
-    const html = htmlParser.parse(response.data);
+    const data = await response.text();
+    const html = htmlParser.parse(data);
 
     this.geozoneNum = html.querySelector("input#X9797").getAttribute("value");
     if (!this.name) {
@@ -77,8 +79,12 @@ class Room {
       [constants.XRoomToken]: this._token,
     });
 
-    const response = await axios.post(url, body, { headers: headers });
-    return response.data;
+    const response = await fetch(url, {
+      method: "post",
+      body: body,
+      headers: headers,
+    });
+    return await response.text();
   }
 
   async _getSockInfo() {
@@ -183,9 +189,10 @@ class Room {
     };
 
     this.client.emit("debug", `Joining room '${this.name}'...`);
-    const response = await axios.get(url, { headers: headers });
-    if (response.data.includes("error.png")) {
-      if (response.data.includes("alias is being used")) {
+    const response = await fetch(url, { method: "get", headers: headers });
+    const data = await response.text();
+    if (data.includes("error.png")) {
+      if (data.includes("alias is being used")) {
         throw new Error(
           "This name/alias is being used by another registered Chatzy user in this room."
         );
@@ -193,7 +200,7 @@ class Room {
         throw new Error("Unable to join room.");
       }
     }
-    this._token = response.data.split(constants.XRoomToken)[1].slice(9, -18); // X7910
+    this._token = data.split(constants.XRoomToken)[1].slice(9, -18); // X7910
 
     await this._buildSocket();
 
@@ -236,7 +243,11 @@ class Room {
       [constants.XRoomToken]: this._token,
     });
 
-    const response = await axios.post(url, body, { headers: headers });
+    const response = await fetch(url, {
+      method: "post",
+      body: body,
+      headers: headers,
+    });
     return response.statusText === "OK";
   }
 }

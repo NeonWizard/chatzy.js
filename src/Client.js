@@ -1,4 +1,4 @@
-const axios = require("axios");
+const fetch = require("node-fetch");
 const htmlParser = require("node-html-parser");
 const EventEmitter = require("events");
 
@@ -50,26 +50,34 @@ class Client extends EventEmitter {
       X2459: "1",
     });
 
+    let response, data;
+
     this.emit("debug", "Posting authentication data...");
-    let response = await axios.post("https://www.chatzy.com/", body);
-    if (!response.data.includes("redirect#ok:entered")) {
+    response = await fetch("https://www.chatzy.com/", {
+      method: "post",
+      body: body,
+    });
+
+    data = await response.text();
+    if (!data.includes("redirect#ok:entered")) {
       throw new Error("Failure logging in.");
     }
 
-    const cookies = response.headers["set-cookie"];
+    const cookies = response.headers.get("set-cookie").split(", ");
     this._cookie = cookies.find((x) => x.includes(process.env.EMAIL));
 
     this.emit(
       "debug",
       "Retrieving web page and injected authentication token..."
     );
-    response = await axios.get("http://www.chatzy.com", {
+    response = await fetch("http://www.chatzy.com", {
       headers: {
         Cookie: this._cookie,
       },
     });
 
-    const html = htmlParser.parse(response.data);
+    data = await response.text();
+    const html = htmlParser.parse(data);
     const script = html.querySelectorAll("script").slice(-1)[0];
     const scriptContent = script.text;
 
@@ -91,8 +99,9 @@ class Client extends EventEmitter {
       Cookie: this._cookie,
     };
 
-    const response = await axios.get(url, { headers: headers });
-    const html = htmlParser.parse(response.data);
+    const response = await fetch(url, { method: "get", headers: headers });
+    const data = response.text();
+    const html = htmlParser.parse(data);
     const rows = html.querySelectorAll(
       "table#X3506 tr:not(:first-child) td:first-child a"
     );

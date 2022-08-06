@@ -14,8 +14,8 @@
     "lint:fix": "eslint src/ --fix"
   },
   "dependencies": {
-    "axios": "^0.21.1",
     "dotenv": "^10.0.0",
+    "node-fetch": "^2.6.7",
     "node-html-parser": "^4.1.0",
     "ws": "^7.5.3"
   },
