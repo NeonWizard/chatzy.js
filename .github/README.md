@@ -1,6 +1,7 @@
 # chatzy.js
 
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NeonWizard/chatzy.js/Build%20and%20deploy%20Docusaurus%20to%20gh-pages%20branch?label=docs%20build)](https://neonwizard.github.io/chatzy.js/)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NeonWizard/chatzy.js/Tests?label=tests)](https://github.com/NeonWizard/chatzy.js/actions/workflows/tests.yml)
 [![License: GPL-3.0](https://img.shields.io/github/license/NeonWizard/chatzy.js)](https://opensource.org/licenses/GPL-3.0)
 
 chatzy.js is a NodeJS package for interfacing with the Chatzy API, alongside some extra functionality.

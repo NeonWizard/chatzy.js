@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test": "node test/basic.js",
+    "test:auto": "node test/auto.js",
     "fmt": "prettier --write '**/*.{md,css,js,json}'",
     "fmt:check": "prettier --check '**/*.{md,css,js,json}'",
     "lint": "eslint src/",
